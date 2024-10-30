@@ -9,7 +9,7 @@ def login(request):
         password = request.POST.get('password')
         
         # Authenticate with email as username
-        user = authenticate(request, username=email, password=password)  # Note: username=email
+        user = authenticate(request, username=email, password=password)  
 
         if user:
             auth_login(request, user)

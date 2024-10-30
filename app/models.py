@@ -15,9 +15,10 @@ class CustomUser(AbstractUser):
 
 
 class Userdata(models.Model):
-    username= models.CharField(max_length=25,blank=False,  null=False),
-    email= models.CharField(max_length=29, blank=False, null=False),
-    password= models.CharField(max_length=29, blank=False, null=False)
+    firstname= models.CharField(max_length=100, blank=False, null=False)
+    lastname= models.CharField(max_length=100, blank=False, null=False)
+    email = models.EmailField(unique=True)
+    password= models.CharField(max_length=100, blank=False, null=False)
 
     def __str__(self):
-        return self.username
+        return self.firstname

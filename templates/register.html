@@ -9,7 +9,7 @@
 <body class="bg-light d-flex justify-content-center align-items-center vh-100">
     <div class="card shadow-lg rounded-lg w-50 p-4">
         <h2 class="card-title text-center text-dark mb-4 font-weight-bold">Create Account</h2>
-        <form action="{% url 'register' %}" method="post" class="space-y-3">
+        <form action="{% url 'registeruser' %}" method="post" class="space-y-3">
             {% csrf_token %}
             <div class="form-group">
                 <label for="firstname" class="font-weight-bold text-dark">Firstname</label>
@@ -49,7 +49,7 @@
             <!-- User Role Selection -->
             <div class="form-group">
                 <label for="role" class="font-weight-bold text-dark">Register as:</label>
-                <select name="role" class="form-control" required>
+                <select name="role" class="form-control">
                     <option value="">Select Role</option>
                     <option value="doctor">Doctor</option>
                     <option value="patient">Patient</option>
