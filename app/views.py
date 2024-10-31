@@ -67,8 +67,8 @@ def request_appointment(request, doctor_id):
 
 
 def doctor_dashboard(request):
-    appointments = Appointment.objects.filter(doctor__user=request.user, status='Pending')
-    return render(request, 'doctor_dashboard.html', {'appointments': appointments})
+    patients = PatientProfile.objects.all()  # Get all patient profiles
+    return render(request, 'doctor_dashboard.html', {'patients': patients})
 
 
 def confirm_appointment(request, appointment_id):
@@ -156,3 +156,27 @@ def patient_details(request):
         return redirect('some_page_after_saving')  # Redirect to a confirmation or profile page
 
     return render(request, 'patient_details.html')
+
+
+
+
+def details_appointment(request, patient_id):
+    patient = get_object_or_404(PatientProfile, id=patient_id)
+    
+    if request.method == 'POST':
+        date = request.POST.get('date')
+        time = request.POST.get('time')
+        location = request.POST.get('location')
+        
+        # Create appointment record for the patient
+        Appointment.objects.create(
+            patient=patient,
+            doctor=request.user,  # Assuming the doctor is the logged-in user
+            date=date,
+            time=time,
+            location=location
+        )
+        
+        return redirect('doctor_dashboard')  # Redirect to the dashboard after saving
+    
+    return render(request, 'details_appointment.html', {'patient': patient})
