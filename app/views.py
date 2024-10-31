@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import authenticate, login as auth_login
 from django.contrib import messages
-from .models import Userdata, Doctor, Appointment, PatientProfile
+from .models import Userdata, Doctor, Appointment, Patient
 from django.contrib.auth.decorators import login_required
 from django.utils import timezone
 
@@ -51,7 +51,7 @@ def login(request):
 
 
 def doctor_dashboard(request):
-    patients = PatientProfile.objects.all()  # Get all patient profiles
+    patients = Patient.objects.all()  # Get all patient profiles
     return render(request, 'doctor_dashboard.html', {'patients': patients})
 
 
@@ -63,8 +63,8 @@ def patient_details(request):
         age = request.POST.get('age')
         symptoms = request.POST.get('symptoms')
 
-        # Save the data to the database (ensure you have a PatientProfile model)
-        PatientProfile.objects.create(
+        # Save the data to the database (ensure you have a Patient model)
+        Patient.objects.create(
             firstname=firstname,
             lastname=lastname,
             gender=gender,
@@ -78,7 +78,7 @@ def patient_details(request):
 
 
 def details_appointment(request, patient_id):
-    patient = get_object_or_404(PatientProfile, id=patient_id)
+    patient = get_object_or_404(Patient, id=patient_id)
     if request.method == 'POST':
         date = request.POST.get('date')
         time = request.POST.get('time')
@@ -113,8 +113,8 @@ def confirm_appointment(request, appointment_id):
 def patient_details(request):
     # Check if the logged-in user already has a profile
     try:
-        patient_profile = PatientProfile.objects.get(user=request.user)
-    except PatientProfile.DoesNotExist:
+        patient_profile = Patient.objects.get(user=request.user)
+    except Patient.DoesNotExist:
         patient_profile = None
     
     if request.method == 'POST':
@@ -135,7 +135,7 @@ def patient_details(request):
             patient_profile.save()
             messages.success(request, 'Your profile has been updated successfully.')
         else:
-            PatientProfile.objects.create(
+            Patient.objects.create(
                 user=request.user,
                 firstname=firstname,
                 lastname=lastname,
@@ -166,7 +166,7 @@ def doctor_detail(request, doctor_id):
 
 # def request_appointment(request, doctor_id):
 #     doctor = get_object_or_404(Doctor, id=doctor_id)
-#     patient_profile = request.user.patientprofile
+#     patient_profile = request.user.Patient
 #     appointment = Appointment.objects.create(patient=patient_profile, doctor=doctor)
 #     return redirect('patient_dashboard')
 
