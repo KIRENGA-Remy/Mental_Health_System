@@ -55,60 +55,29 @@ def doctor_dashboard(request):
     return render(request, 'doctor_dashboard.html', {'patients': patients})
 
 
-def patient_details(request):
-    if request.method == 'POST':
-        firstname = request.POST.get('firstname')
-        lastname = request.POST.get('lastname')
-        gender = request.POST.get('gender')
-        age = request.POST.get('age')
-        symptoms = request.POST.get('symptoms')
+# def patient_details(request):
+#     if request.method == 'POST':
+#         firstname = request.POST.get('firstname')
+#         lastname = request.POST.get('lastname')
+#         gender = request.POST.get('gender')
+#         age = request.POST.get('age')
+#         symptoms = request.POST.get('symptoms')
 
-        # Save the data to the database (ensure you have a Patient model)
-        Patient.objects.create(
-            firstname=firstname,
-            lastname=lastname,
-            gender=gender,
-            age=age,
-            symptoms=symptoms
-        )
+#         # Save the data to the database (ensure you have a Patient model)
+#         Patient.objects.create(
+#             firstname=firstname,
+#             lastname=lastname,
+#             gender=gender,
+#             age=age,
+#             symptoms=symptoms
+#         )
         
-        return redirect('some_page_after_saving')  # Redirect to a confirmation or profile page
+#         return redirect('some_page_after_saving')  # Redirect to a confirmation or profile page
 
-    return render(request, 'patient_details.html')
-
-
-def details_appointment(request, patient_id):
-    patient = get_object_or_404(Patient, id=patient_id)
-    if request.method == 'POST':
-        date = request.POST.get('date')
-        time = request.POST.get('time')
-        location = request.POST.get('location')
-        
-        # Create appointment record for the patient
-        Appointment.objects.create(
-            patient=patient,
-            doctor=request.user,  # Assuming the doctor is the logged-in user
-            date=date,
-            time=time,
-            location=location
-        )
-        
-        return redirect('doctor_dashboard')  # Redirect to the dashboard after saving
-    
-    return render(request, 'details_appointment.html', {'patient': patient})
+#     return render(request, 'patient_details.html')
 
 
-def confirm_appointment(request, appointment_id):
-    appointment = get_object_or_404(Appointment, id=appointment_id)
-    if request.method == 'POST':
-        appointment.date = request.POST.get('date')
-        appointment.time = request.POST.get('time')
-        appointment.status = 'Confirmed'
-        appointment.save()
-        return redirect('doctor_dashboard')
-    return render(request, 'confirm_appointment.html', {'appointment': appointment})
 
-# _______________________________________________________
 @login_required
 def patient_details(request):
     # Check if the logged-in user already has a profile
@@ -151,7 +120,39 @@ def patient_details(request):
     # If a GET request, render the form with the existing profile data, if any
     return render(request, 'patient_details.html', {'patient_profile': patient_profile})
 
+#h
+def details_appointment(request, patient_id):
+    patient = get_object_or_404(Patient, id=patient_id)
+    if request.method == 'POST':
+        date = request.POST.get('date')
+        time = request.POST.get('time')
+        location = request.POST.get('location')
+        
+        # Create appointment record for the patient
+        Appointment.objects.create(
+            patient=patient,
+            doctor=request.user,  # Assuming the doctor is the logged-in user
+            date=date,
+            time=time,
+            location=location
+        )
+        
+        return redirect('doctor_dashboard')  # Redirect to the dashboard after saving
+    
+    return render(request, 'details_appointment.html', {'patient': patient})
 
+
+def confirm_appointment(request, appointment_id):
+    appointment = get_object_or_404(Appointment, id=appointment_id)
+    if request.method == 'POST':
+        appointment.date = request.POST.get('date')
+        appointment.time = request.POST.get('time')
+        appointment.status = 'Confirmed'
+        appointment.save()
+        return redirect('doctor_dashboard')
+    return render(request, 'confirm_appointment.html', {'appointment': appointment})
+
+# _______________________________________________________
 def patient_dashboard(request):
     doctors = Doctor.objects.all()
     return render(request, 'patient_dashboard.html', {'doctors': doctors})

@@ -13,6 +13,9 @@
 <div class="container mt-5">
     <h4>Appointment Requested</h4>
     <p>Your request for an appointment with Dr. {{ doctor.name }} has been sent. You will receive a confirmation once approved.</p>
+    <a href="{% url 'patient_dashboard' %}" class="font-weight-bold text-dark">
+        Return Home
+    </a>
 </div>
 {% endblock %}
 
