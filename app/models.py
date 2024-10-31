@@ -28,9 +28,27 @@ class PatientProfile(models.Model):
     symptoms = models.TextField()  # How the patient is feeling
 
 
-class DoctorProfile(models.Model):
-    user = models.OneToOneField(CustomUser, on_delete=models.CASCADE)
-    specialization = models.CharField(max_length=100)  # e.g., "eyes", "headache", "injury"
+class Doctor(models.Model):
+    SPECIALIZATION_CHOICES = [
+        ('eyes', 'Eyes Specialist'),
+        ('headache', 'Headache Specialist'),
+        ('injury', 'Injury Specialist'),
+    ]
+
+    GENDER_CHOICES = [
+        ('male', 'Male'),
+        ('female', 'Female'),
+        ('other', 'Other'),
+    ]
+
+    name = models.CharField(max_length=100) 
+    specialization = models.CharField(max_length=100, choices=SPECIALIZATION_CHOICES)
+    experience = models.PositiveIntegerField(help_text="Experience in years")
+    gender = models.CharField(max_length=10, choices=GENDER_CHOICES)
+    image = models.ImageField(upload_to='doctor_images/', blank=True, null=True)  
+
+    def __str__(self):
+        return f"Dr. {self.name} - {self.specialization}"
 
 
 class Appointment(models.Model):

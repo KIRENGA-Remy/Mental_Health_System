@@ -1,8 +1,8 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import authenticate, login as auth_login
 from django.contrib import messages
-from .models import Userdata
-from django.shortcuts import get_object_or_404
+from .models import Userdata, Doctor, Appointment, PatientProfile
+from django.contrib.auth.decorators import login_required
 from django.utils import timezone
 
 def login(request):
@@ -82,12 +82,6 @@ def confirm_appointment(request, appointment_id):
     return render(request, 'confirm_appointment.html', {'appointment': appointment})
 
 
-# views.py
-
-from django.shortcuts import render, get_object_or_404, redirect
-from django.contrib.auth.decorators import login_required
-from .models import Doctor, Appointment
-
 # Home page view after login
 @login_required
 def home(request):
@@ -105,3 +99,60 @@ def approved_appointments(request):
     # Fetch approved appointments for the currently logged-in patient
     appointments = Appointment.objects.filter(patient=request.user, status='approved')
     return render(request, 'approved_appointments.html', {'appointments': appointments})
+
+
+login_required
+def doctor_list(request):
+    doctors = Doctor.objects.all()  # Assuming a Doctor model exists
+    return render(request, 'doctor_list.html', {'doctors': doctors})
+
+# View to display specific doctor details
+@login_required
+def doctor_detail(request, doctor_id):
+    doctor = get_object_or_404(Doctor, id=doctor_id)
+    return render(request, 'doctor_detail.html', {'doctor': doctor})
+
+# View to handle appointment request
+@login_required
+def request_appointment(request, doctor_id):
+    doctor = get_object_or_404(Doctor, id=doctor_id)
+
+    # Create an appointment request (adjust model fields as needed)
+    appointment = Appointment.objects.create(
+        patient=request.user,
+        doctor=doctor,
+        status='pending'  # Set the initial status as 'pending'
+    )
+
+    # Redirect to the appointment confirmation page
+    messages.success(request, f"Your request for an appointment with Dr. {doctor.name} has been sent.")
+    return render(request, 'request_appointment.html', {'doctor': doctor})
+
+
+@login_required
+def approved_appointments(request):
+    # Retrieve all approved appointments for the logged-in patient
+    appointments = Appointment.objects.filter(patient=request.user, status='approved')
+    return render(request, 'approved_appointments.html', {'appointments': appointments})
+
+
+def patient_details(request):
+    if request.method == 'POST':
+        firstname = request.POST.get('firstname')
+        lastname = request.POST.get('lastname')
+        gender = request.POST.get('gender')
+        age = request.POST.get('age')
+        symptoms = request.POST.get('symptoms')
+
+        # Save the data to the database (ensure you have a PatientProfile model)
+        PatientProfile.objects.create(
+            firstname=firstname,
+            lastname=lastname,
+            gender=gender,
+            age=age,
+            symptoms=symptoms
+        )
+        
+        return redirect('some_page_after_saving')  # Redirect to a confirmation or profile page
+
+    return render(request, 'patient_details.html')

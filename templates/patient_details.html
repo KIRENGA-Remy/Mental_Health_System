@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home Page</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" integrity="sha384-9ndCyUa1tnA8msXn5KqnW6N6YbBzF1Jn+G+ZP9i6e1Zl9gvr8o24GH97ylxu0HS+" crossorigin="anonymous">
+</head>
+<body class="bg-light d-flex justify-content-center align-items-center vh-100">
+   <!-- templates/patient_details.html -->
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-5">
+    <h3>Create Your Profile</h3>
+    <form method="post" action="{% url 'patient_details' %}" class="mt-4">
+        {% csrf_token %}
+        
+        <div class="mb-3">
+            <label for="firstname" class="form-label">First Name</label>
+            <input type="text" class="form-control" id="firstname" name="firstname" required>
+        </div>
+        
+        <div class="mb-3">
+            <label for="lastname" class="form-label">Last Name</label>
+            <input type="text" class="form-control" id="lastname" name="lastname" required>
+        </div>
+        
+        <div class="mb-3">
+            <label for="gender" class="form-label">Gender</label>
+            <select class="form-select" id="gender" name="gender" required>
+                <option value="">Select Gender</option>
+                <option value="male">Male</option>
+                <option value="female">Female</option>
+                <option value="other">Other</option>
+            </select>
+        </div>
+        
+        <div class="mb-3">
+            <label for="age" class="form-label">Age</label>
+            <input type="number" class="form-control" id="age" name="age" min="1" max="120" required>
+        </div>
+        
+        <div class="mb-3">
+            <label for="symptoms" class="form-label">Symptoms</label>
+            <textarea class="form-control" id="symptoms" name="symptoms" rows="3" placeholder="Describe your symptoms here" required></textarea>
+        </div>
+        
+        <button type="submit" class="btn btn-primary">Save Profile</button>
+    </form>
+</div>
+{% endblock %}
+
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-HoAJA4zPtBkw4ZMcQsK7h4ezSlgSpG6dfl+IIVrCrr/HdsVx+vAB71J1d29O1w6l" crossorigin="anonymous"></script>
+</body>
+</html> 
