@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Email Already Exists</title>
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light d-flex justify-content-center align-items-center vh-100">
+    <div class="card shadow-lg rounded-lg w-50 p-4">
+        <h2 class="card-title text-center text-dark mb-4 font-weight-bold">Account Exists</h2>
+        <p class="text-center text-danger">An account with this email already exists. Please try logging in or use a different email address to register.</p>
+        <div class="d-flex justify-content-between mt-4">
+            <a href="{% url 'login' %}" class="btn btn-success font-weight-bold">Go to Login</a>
+            <a href="{% url 'registeruser' %}" class="btn btn-primary font-weight-bold">Try Again</a>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.0.7/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>

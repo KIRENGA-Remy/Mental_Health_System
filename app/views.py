@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import authenticate, login as auth_login
 from django.contrib import messages
-from .models import Userdata, Doctor, Appointment, Patient
+from .models import Userdata, Doctor, Appointment, Patient, CustomUser
 from django.contrib.auth.decorators import login_required
 from django.utils import timezone
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
@@ -60,7 +60,12 @@ def registeruser(request):
     if request.method == 'POST':
         form = CustomUserCreationForm(request.POST)
         if form.is_valid():
+            email = form.cleaned_data.get('email')
+            if CustomUser.objects.filter(email=email).exists():
+                messages.error(request, 'An account with this email already exists.')
+                redirect('already_exist')
             form.save()
+            messages.success(request, 'Account created')
             return redirect('login')  
     else: 
         form = CustomUserCreationForm()
@@ -70,7 +75,7 @@ def registeruser(request):
 
 def login(request):
     if request.method == 'POST':
-        form = AuthenticationForm()(data= request.POST)
+        form = AuthenticationForm(request, data= request.POST)
         if form.is_valid():
             user = form.get_user()
             if user.role == 'doctor':
