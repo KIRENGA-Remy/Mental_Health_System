@@ -4,51 +4,82 @@ from django.contrib import messages
 from .models import Userdata, Doctor, Appointment, Patient
 from django.contrib.auth.decorators import login_required
 from django.utils import timezone
+from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
+from .forms import CustomUserCreationForm
+from django.contrib import messages
 
+
+# def registeruser(request):
+#     if request.method == 'POST':
+#         firstname = request.POST.get('firstname') 
+#         lastname = request.POST.get('lastname') 
+#         email = request.POST.get('email')
+#         password = request.POST.get('password')
+        
+        
+#         print(f"Firstname: {firstname}, Lastname: {lastname} , Email: {email}, Password: {password}")
+
+        
+#         if Userdata.objects.filter(email=email).exists():
+#             messages.error(request, 'Email already exists.')
+#             return render(request, 'register.html')
+        
+#         # Save the user data
+#         query = Userdata( firstname=firstname,lastname=lastname, email=email, password=password)
+#         query.save()
+        
+#         # Display success message
+#         messages.success(request, 'Registration successful.')
+#         return redirect('login')  
+
+#     return render(request, 'register.html')
+
+
+# def login(request):
+#     if request.method == 'POST':
+#         email = request.POST.get('email')
+#         password = request.POST.get('password')
+        
+#         # Authenticate with email as username
+#         user = authenticate(request, username=email, password=password)  
+
+#         if user:
+#             auth_login(request, user)
+#             return redirect('home')
+#         else:
+#             messages.error(request, 'Invalid email or password')
+#             return render(request, 'login.html')
+
+#     return render(request, 'login.html')
+
+
+from django.shortcuts import render, redirect
+from .forms import CustomUserCreationForm
 
 def registeruser(request):
     if request.method == 'POST':
-        firstname = request.POST.get('firstname') 
-        lastname = request.POST.get('lastname') 
-        email = request.POST.get('email')
-        password = request.POST.get('password')
-        
-        
-        print(f"Firstname: {firstname}, Lastname: {lastname} , Email: {email}, Password: {password}")
+        form = CustomUserCreationForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('login')  
+    else: 
+        form = CustomUserCreationForm()
 
-        
-        if Userdata.objects.filter(email=email).exists():
-            messages.error(request, 'Email already exists.')
-            return render(request, 'register.html')
-        
-        # Save the user data
-        query = Userdata( firstname=firstname,lastname=lastname, email=email, password=password)
-        query.save()
-        
-        # Display success message
-        messages.success(request, 'Registration successful.')
-        return redirect('login')  
-
-    return render(request, 'register.html')
+    return render(request, 'register.html', {'form': form})
 
 
 def login(request):
     if request.method == 'POST':
-        email = request.POST.get('email')
-        password = request.POST.get('password')
-        
-        # Authenticate with email as username
-        user = authenticate(request, username=email, password=password)  
-
-        if user:
-            auth_login(request, user)
-            return redirect('home')
-        else:
-            messages.error(request, 'Invalid email or password')
-            return render(request, 'login.html')
-
-    return render(request, 'login.html')
-
+        form = AuthenticationForm()(data= request.POST)
+        if form.is_valid():
+            user = form.get_user()
+            if user.role == 'doctor':
+               return redirect('/doctor_dashboard')
+            elif user.role == 'patient':
+                return redirect('/patient_dashboard')
+    else: 
+        form = AuthenticationForm()
+    return render(request, 'login.html', {'form': form})
 
 def doctor_dashboard(request):
     patients = Patient.objects.all()  # Get all patient profiles
@@ -214,7 +245,7 @@ def home(request):
 #     return render(request, 'doctor_list.html', {'doctors': doctors})
 
 
-# login_required
-# def doctor_list(request):
-#     doctors = Doctor.objects.all()  # Assuming a Doctor model exists
-#     return render(request, 'doctor_list.html', {'doctors': doctors})
+login_required
+def doctor_list(request):
+    doctors = Doctor.objects.all()  # Assuming a Doctor model exists
+    return render(request, 'doctor_list.html', {'doctors': doctors})

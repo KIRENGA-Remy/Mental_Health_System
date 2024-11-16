@@ -3,34 +3,30 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Home Page</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" integrity="sha384-9ndCyUa1tnA8msXn5KqnW6N6YbBzF1Jn+G+ZP9i6e1Zl9gvr8o24GH97ylxu0HS+" crossorigin="anonymous">
+    <title>Doctor Dashboard</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css">
 </head>
-<body class="bg-light d-flex justify-content-center align-items-center vh-100">
-    <!-- templates/doctor_dashboard.html -->
-{% extends "base.html" %}
-{% block content %}
-<div class="container mt-5">
-    <h3>Patient Appointments</h3>
-    <div class="mt-4">
-        {% for patient in patients %}
-            <div class="card mb-3">
-                <div class="card-body">
-                    <h5 class="card-title">{{ patient.firstname }} {{ patient.lastname }}</h5>
-                    <p><strong>Gender:</strong> {{ patient.gender }}</p>
-                    <p><strong>Age:</strong> {{ patient.age }}</p>
-                    <p><strong>Symptoms:</strong> {{ patient.symptoms }}</p>
-                    <a href="{% url 'details_appointment' patient.id %}" class="btn btn-primary">Give Appointment</a>
+<body class="bg-light">
+    {% extends "base.html" %}
+    {% block content %}
+    <div class="container mt-5">
+        <h3 class="text-success text-center mb-4">Patient Appointments</h3>
+        <div>
+            {% for patient in patients %}
+                <div class="card mb-3">
+                    <div class="card-body">
+                        <h5 class="card-title text-success">{{ patient.firstname }} {{ patient.lastname }}</h5>
+                        <p class="text-dark"><strong>Gender:</strong> {{ patient.gender }}</p>
+                        <p class="text-dark"><strong>Age:</strong> {{ patient.age }}</p>
+                        <p class="text-dark"><strong>Symptoms:</strong> {{ patient.symptoms }}</p>
+                        <a href="{% url 'details_appointment' patient.id %}" class="btn btn-success text-white">Give Appointment</a>
+                    </div>
                 </div>
-            </div>
-        {% empty %}
-            <p>No patient appointment requests at the moment.</p>
-        {% endfor %}
+            {% empty %}
+                <p class="text-center">No patient appointment requests at the moment.</p>
+            {% endfor %}
+        </div>
     </div>
-</div>
-{% endblock %}
-    
-
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-HoAJA4zPtBkw4ZMcQsK7h4ezSlgSpG6dfl+IIVrCrr/HdsVx+vAB71J1d29O1w6l" crossorigin="anonymous"></script>
+    {% endblock %}
 </body>
 </html>
