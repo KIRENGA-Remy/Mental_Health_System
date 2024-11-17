@@ -3,7 +3,7 @@ from app import views
 
 urlpatterns = [
     path('registeruser/', views.registeruser, name='registeruser'),
-    path('already_exist/', lambda request: render(request, 'already_exist.html'), name='already_exist'),
+    path('alreadyexist', views.alreadyexist, name='alreadyexist'),
     path('login/', views.login, name='login'),
     path('', views.home, name='home'),
     path('doctors/', views.doctor_list, name='doctor_list'),
