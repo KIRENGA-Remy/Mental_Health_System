@@ -60,14 +60,14 @@ def registeruser(request):
     if request.method == 'POST':
         form = CustomUserCreationForm(request.POST)
         if form.is_valid():
-            email = form.cleaned_data.get('username')
-            if CustomUser.objects.filter(username=email).exists():
+            email = form.cleaned_data.get('email')
+            if CustomUser.objects.filter(email=email).exists():
                 messages.error(request, 'An account with this email already exists.')
                 print('This user already exists.')
-                return redirect('alreadyexist')  
+                return redirect(request, 'alreadyexist')  
             form.save()
             messages.success(request, 'Account created successfully!')
-            return redirect('login')  
+            return redirect(request, 'login')  
     else: 
         form = CustomUserCreationForm()
 
@@ -79,6 +79,20 @@ def alreadyexist(request):
     return render(request, 'alreadyexist.html')
 
 def login(request):
+    if request.method == 'POST':
+        form = AuthenticationForm(request, data= request.POST)
+        if form.is_valid():
+            user = form.get_user()
+            if user.role == 'doctor':
+               return redirect('/doctor_dashboard')
+            elif user.role == 'patient':
+                return redirect('/patient_dashboard')
+    else: 
+        form = AuthenticationForm()
+    return render(request, 'login.html', {'form': form})
+
+
+def loginuser(request):
     if request.method == 'POST':
         form = AuthenticationForm(request, data= request.POST)
         if form.is_valid():
