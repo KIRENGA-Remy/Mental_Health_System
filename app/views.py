@@ -60,18 +60,19 @@ def registeruser(request):
     if request.method == 'POST':
         form = CustomUserCreationForm(request.POST)
         if form.is_valid():
-            username = form.cleaned_data.get('username')
-            if CustomUser.objects.filter(username=username).exists():
+            email = form.cleaned_data.get('username')
+            if CustomUser.objects.filter(username=email).exists():
                 messages.error(request, 'An account with this email already exists.')
-                print('This user already exist')
-                redirect('alreadyexist')
+                print('This user already exists.')
+                return redirect('alreadyexist')  
             form.save()
-            messages.success(request, 'Account created')
+            messages.success(request, 'Account created successfully!')
             return redirect('login')  
     else: 
         form = CustomUserCreationForm()
 
     return render(request, 'register.html', {'form': form})
+
 
 
 def alreadyexist(request):

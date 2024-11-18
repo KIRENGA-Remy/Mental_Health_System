@@ -6,7 +6,7 @@ class CustomUserCreationForm(UserCreationForm):
     first_name = forms.CharField(max_length=30, required=True, help_text="Enter your first name")
     last_name = forms.CharField(max_length=30, required=True, help_text="Enter your last name")
     email = forms.EmailField(required=True, help_text="Enter your email")
-    role = forms.ChoiceField(choices=CustomUser.ROLE_CHOICES, required=True)  # Use model's ROLE_CHOICES
+    role = forms.ChoiceField(choices=CustomUser.ROLE_CHOICES, required=True) 
 
     class Meta:
         model = CustomUser

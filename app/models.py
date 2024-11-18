@@ -41,7 +41,7 @@ class Doctor(models.Model):
         ('other', 'Other'),
     ]
 
-    user = models.OneToOneField(CustomUser, on_delete=models.CASCADE)
+    user = models.OneToOneField(CustomUser, on_delete=models.CASCADE, null=True, blank=True)
     specialization = models.CharField(max_length=100, choices=SPECIALIZATION_CHOICES)
     experience = models.PositiveIntegerField(help_text="Experience in years")
     gender = models.CharField(max_length=10, choices=GENDER_CHOICES)
