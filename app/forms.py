@@ -3,7 +3,7 @@ from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import authenticate, get_user_model
 from django.contrib.auth.backends import ModelBackend
 from django.utils.translation import gettext_lazy as _
-from .models import CustomUser
+from .models import CustomUser, Appointment
 
 # Get the User model
 User = get_user_model()
@@ -100,17 +100,21 @@ class CustomAuthenticationForm(forms.Form):
         """
         return self.user_cache
 
-
-# Custom Authentication Backend
 class EmailBackend(ModelBackend):
     def authenticate(self, request, username=None, password=None, **kwargs):
         """
         Authenticate user with email and password.
         """
-        UserModel = get_user_model()  # Retrieve the User model
+        UserModel = get_user_model()  
         try:
             user = UserModel.objects.get(email=username)
         except UserModel.DoesNotExist:
             return None
         if user.check_password(password) and self.user_can_authenticate(user):
             return user
+
+
+class AppointmentForm(forms.ModelForm):
+    class Meta:
+        model = Appointment
+        fields = ['doctor', 'date']
