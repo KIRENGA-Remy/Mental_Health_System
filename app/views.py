@@ -4,9 +4,14 @@ from django.contrib import messages
 from .models import Doctor, Appointment, Patient, CustomUser
 from django.contrib.auth.decorators import login_required
 from django.utils import timezone
-from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
+from .forms import CustomUserCreationForm, CustomAuthenticationForm
 from .forms import CustomUserCreationForm
+from .forms import CustomAuthenticationForm
 from django.contrib import messages
+from django.shortcuts import render, redirect
+from django.contrib import messages
+from .forms import CustomUserCreationForm
+from .models import CustomUser
 
 
 # def registeruser(request):
@@ -52,12 +57,6 @@ from django.contrib import messages
 
 #     return render(request, 'login.html')
 
-
-from django.shortcuts import render, redirect
-from django.contrib import messages
-from .forms import CustomUserCreationForm
-from .models import CustomUser
-
 def registeruser(request):
     if request.method == 'POST':
         form = CustomUserCreationForm(request.POST)
@@ -80,31 +79,38 @@ def alreadyexist(request):
 
 def login(request):
     if request.method == 'POST':
-        form = AuthenticationForm(request, data= request.POST)
+        form = CustomAuthenticationForm(request, data=request.POST)
         if form.is_valid():
             user = form.get_user()
+            auth_login(request, user)
             if user.role == 'doctor':
-               return redirect('/doctor_dashboard')
+                return redirect('/doctor_dashboard')
             elif user.role == 'patient':
                 return redirect('/patient_dashboard')
-    else: 
-        form = AuthenticationForm()
+        else:
+            messages.error(request, 'Invalid email or password')
+    else:
+        form = CustomAuthenticationForm()
     return render(request, 'login.html', {'form': form})
 
 
 def loginuser(request):
     if request.method == 'POST':
-        form = AuthenticationForm(request, data= request.POST)
+        form = CustomAuthenticationForm(request, data=request.POST)
         if form.is_valid():
             user = form.get_user()
+            auth_login(request, user)
             if user.role == 'doctor':
-               return redirect('/doctor_dashboard')
+                return redirect('/doctor_dashboard')
             elif user.role == 'patient':
                 return redirect('/patient_dashboard')
+        else:
+            messages.error(request, 'Invalid email or password')
     else: 
-        form = AuthenticationForm()
+        form = CustomAuthenticationForm()
     return render(request, 'login.html', {'form': form})
 
+@login_required
 def doctor_dashboard(request):
     patients = Patient.objects.all()  # Get all patient profiles
     return render(request, 'doctor_dashboard.html', {'patients': patients})
@@ -208,6 +214,7 @@ def confirm_appointment(request, appointment_id):
     return render(request, 'confirm_appointment.html', {'appointment': appointment})
 
 # _______________________________________________________
+@login_required
 def patient_dashboard(request):
     doctors = Doctor.objects.all()
     return render(request, 'patient_dashboard.html', {'doctors': doctors})
