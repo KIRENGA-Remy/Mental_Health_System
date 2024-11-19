@@ -54,7 +54,9 @@ from django.contrib import messages
 
 
 from django.shortcuts import render, redirect
+from django.contrib import messages
 from .forms import CustomUserCreationForm
+from .models import CustomUser
 
 def registeruser(request):
     if request.method == 'POST':
@@ -63,16 +65,14 @@ def registeruser(request):
             email = form.cleaned_data.get('email')
             if CustomUser.objects.filter(email=email).exists():
                 messages.error(request, 'An account with this email already exists.')
-                print('This user already exists.')
-                return redirect(request, 'alreadyexist')  
+                return render(request, 'register.html', {'form': form})  # Re-render the form with the error
             form.save()
             messages.success(request, 'Account created successfully!')
-            return redirect(request, 'login')  
-    else: 
+            return redirect('login')  # Redirect to the login URL pattern
+    else:
         form = CustomUserCreationForm()
 
     return render(request, 'register.html', {'form': form})
-
 
 
 def alreadyexist(request):
