@@ -21,14 +21,14 @@ class CustomUser(AbstractUser):
     def __str__(self):
         return f"{self.first_name} {self.last_name} ({self.role})"
 
-class Patient(models.Model):
+class PatientModel(models.Model):
     user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     symptoms = models.TextField(blank=True, null=True) 
 
     def __str__(self):
         return f"Patient: {self.user.first_name} {self.user.last_name}"
 
-class Doctor(models.Model):
+class DoctorModel(models.Model):
     user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True, blank=True)
     specialization = models.CharField(max_length=100, choices=[
         ('eyes', 'Eyes Specialist'),
@@ -37,14 +37,14 @@ class Doctor(models.Model):
     ])
     available = models.BooleanField(default=True)
     location = models.CharField(max_length=50)
-    working_hours = models.TextField(blank=True, null=True)  # Store working hours (JSON or string)
+    working_hours = models.CharField(max_length=100, blank=True, null=True) 
 
     def __str__(self):
         return f"Dr. {self.user.first_name} {self.user.last_name} - {self.specialization}"
 
 class PatientRecord(models.Model):
     patient = models.ForeignKey('Patient', on_delete=models.CASCADE, related_name="records")
-    doctor = models.ForeignKey(Doctor, on_delete=models.CASCADE, related_name="patients")
+    doctor = models.ForeignKey(DoctorModel, on_delete=models.CASCADE, related_name="patients")
     notes = models.TextField()
     prescription = models.TextField(blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -53,8 +53,8 @@ class PatientRecord(models.Model):
         return f"Record for {self.patient.user.first_name} by {self.doctor.user.last_name}"
     
 class Appointment(models.Model):
-    patient = models.ForeignKey(Patient, on_delete=models.CASCADE, related_name="appointments")
-    doctor = models.ForeignKey(Doctor, on_delete=models.CASCADE, related_name="appointments")
+    patient = models.ForeignKey(PatientModel, on_delete=models.CASCADE, related_name="appointments")
+    doctor = models.ForeignKey(DoctorModel, on_delete=models.CASCADE, related_name="appointments")
     date = models.DateField(null=True, blank=True)
     time = models.TimeField(null=True, blank=True)
     status = models.CharField(
@@ -69,8 +69,8 @@ class Appointment(models.Model):
 
 
 class HealthRecord(models.Model):
-    patient = models.ForeignKey(Patient, on_delete=models.CASCADE, related_name="health_records")
-    doctor = models.ForeignKey(Doctor, on_delete=models.CASCADE)
+    patient = models.ForeignKey(PatientModel, on_delete=models.CASCADE, related_name="health_records")
+    doctor = models.ForeignKey(DoctorModel, on_delete=models.CASCADE)
     notes = models.TextField()
     prescription = models.TextField()
 

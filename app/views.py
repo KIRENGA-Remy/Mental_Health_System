@@ -4,7 +4,7 @@ from django.contrib.auth.decorators import login_required
 from django.utils import timezone
 from .forms import CustomUserCreationForm, CustomAuthenticationForm, AppointmentForm
 from django.contrib import messages
-from .models import CustomUser, Appointment, HealthRecord, PatientRecord, Doctor, Patient
+from .models import CustomUser, Appointment, HealthRecord, PatientRecord, DoctorModel, PatientModel
 
 def registeruser(request):
     if request.method == 'POST':
@@ -18,10 +18,10 @@ def registeruser(request):
             user = form.save(commit=False)
             if user.role == 'patient':
                 user.save()
-                Patient.objects.create(user=user)
+                PatientModel.objects.create(user=user)
             elif user.role == 'doctor':
                 user.save()
-                Doctor.objects.create(user=user)
+                DoctorModel.objects.create(user=user)
         
         messages.success(request, "Account created successfully")
         return redirect('login')
@@ -70,7 +70,7 @@ def loginuser(request):
 
 def doctor_dashboard(request):
     if request.user.is_authenticated and request.user.role == 'doctor':
-        doctor = get_object_or_404(Doctor, user=request.user)
+        doctor = get_object_or_404(DoctorModel, user=request.user)
         appointments = Appointment.objects.filter(doctor=doctor).order_by('date', 'time')
         pending_appointments = appointments.filter(status='Pending')
         return render(request, 'doctor_dashboard.html', {
@@ -82,13 +82,13 @@ def doctor_dashboard(request):
 
 @login_required
 def manage_patients(request):
-    doctor = get_object_or_404(Doctor, user=request.user)
+    doctor = get_object_or_404(DoctorModel, user=request.user)
     records = PatientRecord.objects.filter(doctor=doctor)
     return render(request, 'manage_patients.html', {'records': records})
 
 @login_required
 def set_availability(request):
-    doctor = get_object_or_404(Doctor, user=request.user)
+    doctor = get_object_or_404(DoctorModel, user=request.user)
     if request.method == 'POST':
         doctor.working_hours = request.POST.get('working_hours')
         doctor.available = request.POST.get('available', 'off') == 'on'
@@ -98,7 +98,7 @@ def set_availability(request):
 
 @login_required
 def analytics(request):
-    doctor = get_object_or_404(Doctor, user=request.user)
+    doctor = get_object_or_404(DoctorModel, user=request.user)
     appointments = Appointment.objects.filter(doctor=doctor)
     total_appointments = appointments.count()
     patient_visits = appointments.values('patient').distinct().count()
@@ -110,8 +110,8 @@ def analytics(request):
 @login_required
 def patient_details(request):
     try:
-        patient_profile = Patient.objects.get(user=request.user)
-    except Patient.DoesNotExist:
+        patient_profile = PatientModel.objects.get(user=request.user)
+    except PatientModel.DoesNotExist:
         patient_profile = None
     
     if request.method == 'POST':
@@ -130,7 +130,7 @@ def patient_details(request):
             patient_profile.save()
             messages.success(request, 'Your profile has been updated successfully.')
         else:
-            Patient.objects.create(
+            PatientModel.objects.create(
                 user=request.user,
                 firstname=firstname,
                 lastname=lastname,
@@ -145,7 +145,7 @@ def patient_details(request):
     return render(request, 'patient_details.html', {'patient_profile': patient_profile})
 
 def details_appointment(request, patient_id):
-    patient = get_object_or_404(Patient, id=patient_id)
+    patient = get_object_or_404(PatientModel, id=patient_id)
     if request.method == 'POST':
         date = request.POST.get('date')
         time = request.POST.get('time')
@@ -177,7 +177,7 @@ def confirm_appointment(request, appointment_id):
 # _______________________________________________________
 def patient_dashboard(request):
     if request.user.is_authenticated and request.user.role == 'patient':
-        patient = get_object_or_404(Patient, user=request.user)
+        patient = get_object_or_404(PatientModel, user=request.user)
         appointments = Appointment.objects.filter(patient=patient)
         health_records = HealthRecord.objects.filter(patient=patient)
         
@@ -188,12 +188,12 @@ def patient_dashboard(request):
     return redirect('login')
 
 def search_doctors(request):
-    doctors = Doctor.objects.all()
+    doctors = DoctorModel.objects.all()
     return render(request, 'search_doctors.html', {'doctors': doctors})
 
 
 def book_appointment(request, doctor_id):
-    doctor = Doctor.objects.get(id=doctor_id)
+    doctor = DoctorModel.objects.get(id=doctor_id)
     if request.method == "POST":
         form = AppointmentForm(request.POST)
         if form.is_valid():
@@ -208,12 +208,12 @@ def book_appointment(request, doctor_id):
 
 @login_required
 def doctor_detail(request, doctor_id):
-    doctor = get_object_or_404(Doctor, id=doctor_id)
+    doctor = get_object_or_404(DoctorModel, id=doctor_id)
     return render(request, 'doctor_detail.html', {'doctor': doctor})
 
 @login_required
 def request_appointment(request, doctor_id):
-    doctor = get_object_or_404(Doctor, id=doctor_id)
+    doctor = get_object_or_404(DoctorModel, id=doctor_id)
 
     appointment = Appointment.objects.create(
         patient=request.user,
@@ -235,5 +235,5 @@ def home(request):
 
 login_required
 def doctor_list(request):
-    doctors = Doctor.objects.all()  
+    doctors = DoctorModel.objects.all()  
     return render(request, 'doctor_list.html', {'doctors': doctors})
