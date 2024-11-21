@@ -7,22 +7,32 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css">
 </head>
 <body class="bg-light">
-    <div class="container mt-5">
-        <h3 class="text-success text-center mb-4">Patient Appointments</h3>
-        <div>
-            {% for patient in patients %}
-                <div class="card mb-3">
-                    <div class="card-body">
-                        <h5 class="card-title text-success">{{ patient.firstname }} {{ patient.lastname }}</h5>
-                        <p class="text-dark"><strong>Gender:</strong> {{ patient.gender }}</p>
-                        <p class="text-dark"><strong>Age:</strong> {{ patient.age }}</p>
-                        <p class="text-dark"><strong>Symptoms:</strong> {{ patient.symptoms }}</p>
-                        <a href="{% url 'details_appointment' patient.id %}" class="btn btn-success text-white">Give Appointment</a>
-                    </div>
-                </div>
-            {% empty %}
-                <p class="text-center">No patient appointment requests at the moment.</p>
-            {% endfor %}
+    <div class="container">
+        <h2 class="mt-4">Welcome, Dr. {{ doctor.user.first_name }}</h2>
+        <div class="row">
+            <div class="col-md-6">
+                <h4>Your Appointments</h4>
+                <ul class="list-group">
+                    {% for appointment in appointments %}
+                        <li class="list-group-item">
+                            {{ appointment.patient.user.first_name }} on {{ appointment.date }} at {{ appointment.time }}
+                            <span class="badge bg-{{ appointment.status|lower }}">{{ appointment.status }}</span>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+            <div class="col-md-6">
+                <h4>Pending Requests</h4>
+                <ul class="list-group">
+                    {% for appointment in pending_appointments %}
+                        <li class="list-group-item">
+                            {{ appointment.patient.user.first_name }} on {{ appointment.date }}
+                            <a href="#" class="btn btn-sm btn-success">Approve</a>
+                            <a href="#" class="btn btn-sm btn-danger">Reject</a>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
         </div>
     </div>
 </body>

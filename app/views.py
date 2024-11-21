@@ -1,32 +1,34 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib.auth import authenticate, login as auth_login
-from django.contrib import messages
-from .models import Doctor, Appointment, Patient, CustomUser
+from django.contrib.auth import  login as auth_login, get_user_model
 from django.contrib.auth.decorators import login_required
 from django.utils import timezone
-from .forms import CustomUserCreationForm, CustomAuthenticationForm
-from .forms import CustomUserCreationForm
-from .forms import CustomAuthenticationForm
+from .forms import CustomUserCreationForm, CustomAuthenticationForm, AppointmentForm
 from django.contrib import messages
-from django.contrib import messages
-from .forms import CustomUserCreationForm, AppointmentForm
-from .models import CustomUser, Appointment, HealthRecord
+from .models import CustomUser, Appointment, HealthRecord, PatientRecord, Doctor, Patient
 
 def registeruser(request):
     if request.method == 'POST':
         form = CustomUserCreationForm(request.POST)
         if form.is_valid():
             email = form.cleaned_data.get('email')
-            if CustomUser.objects.filter(email=email).exists():
-                messages.error(request, 'An account with this email already exists.')
-                return render(request, 'register.html', {'form': form})  
-            form.save()
-            messages.success(request, 'Account created successfully!')
-            return redirect('login') 
+            if CustomUser.objects.filter(email=email):
+                messages.error(request, "Account with this email already exist")
+                return render(request, 'register.html', {'form':form})
+            
+            user = form.save(commit=False)
+            if user.role == 'patient':
+                user.save()
+                Patient.objects.create(user=user)
+            elif user.role == 'doctor':
+                user.save()
+                Doctor.objects.create(user=user)
+        
+        messages.success(request, "Account created successfully")
+        return redirect('login')
     else:
         form = CustomUserCreationForm()
-
-    return render(request, 'register.html', {'form': form})
+    
+    return render(request, 'register.html', {'form':form})
 
 
 def alreadyexist(request):
@@ -68,8 +70,42 @@ def loginuser(request):
 
 @login_required
 def doctor_dashboard(request):
-    patients = Patient.objects.all()  # Get all patient profiles
-    return render(request, 'doctor_dashboard.html', {'patients': patients})
+    doctor = get_object_or_404(Doctor, user=request.user)
+    appointments = Appointment.objects.filter(doctor=doctor).order_by('date', 'time')
+    pending_appointments = appointments.filter(status='Pending')
+    return render(request, 'doctor_dashboard.html', {
+        'doctor': doctor,
+        'appointments': appointments,
+        'pending_appointments': pending_appointments,
+    })
+
+
+@login_required
+def manage_patients(request):
+    doctor = get_object_or_404(Doctor, user=request.user)
+    records = PatientRecord.objects.filter(doctor=doctor)
+    return render(request, 'manage_patients.html', {'records': records})
+
+@login_required
+def set_availability(request):
+    doctor = get_object_or_404(Doctor, user=request.user)
+    if request.method == 'POST':
+        doctor.working_hours = request.POST.get('working_hours')
+        doctor.available = request.POST.get('available', 'off') == 'on'
+        doctor.save()
+        return render(request, 'set_availability.html', {'success': True, 'doctor': doctor})
+    return render(request, 'set_availability.html', {'doctor': doctor})
+
+@login_required
+def analytics(request):
+    doctor = get_object_or_404(Doctor, user=request.user)
+    appointments = Appointment.objects.filter(doctor=doctor)
+    total_appointments = appointments.count()
+    patient_visits = appointments.values('patient').distinct().count()
+    return render(request, 'analytics.html', {
+        'total_appointments': total_appointments,
+        'patient_visits': patient_visits,
+    })
 
 @login_required
 def patient_details(request):
@@ -140,15 +176,16 @@ def confirm_appointment(request, appointment_id):
 
 # _______________________________________________________
 def patient_dashboard(request):
-    if request.user.is_authenticated:
-        appointments = Appointment.objects.filter(patient=request.user)
-        health_records = HealthRecord.objects.filter(patient=request.user)
+    if request.user.is_authenticated and request.user.role == 'patient':
+        patient = get_object_or_404(Patient, user=request.user)
+        appointments = Appointment.objects.filter(patient=patient)
+        health_records = HealthRecord.objects.filter(patient=patient)
+        
         return render(request, 'patient_dashboard.html', {
             'appointments': appointments,
             'health_records': health_records
         })
     return redirect('login')
-
 
 def search_doctors(request):
     doctors = Doctor.objects.all()

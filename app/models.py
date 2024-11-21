@@ -28,30 +28,30 @@ class Patient(models.Model):
     def __str__(self):
         return f"Patient: {self.user.first_name} {self.user.last_name}"
 
-
 class Doctor(models.Model):
-    SPECIALIZATION_CHOICES = [
+    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True, blank=True)
+    specialization = models.CharField(max_length=100, choices=[
         ('eyes', 'Eyes Specialist'),
         ('headache', 'Headache Specialist'),
         ('injury', 'Injury Specialist'),
-    ]
-    GENDER_CHOICES = [
-        ('male', 'Male'),
-        ('female', 'Female'),
-        ('other', 'Other'),
-    ]
-
-    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True, blank=True)
-    specialization = models.CharField(max_length=100, choices=SPECIALIZATION_CHOICES)
-    gender = models.CharField(max_length=10, choices=GENDER_CHOICES)
-    image = models.ImageField(upload_to='doctor_images/', blank=True, null=True)
+    ])
     available = models.BooleanField(default=True)
-    location = models.CharField(max_length=50, default='Rwanda')
+    location = models.CharField(max_length=50)
+    working_hours = models.TextField(blank=True, null=True)  # Store working hours (JSON or string)
 
     def __str__(self):
         return f"Dr. {self.user.first_name} {self.user.last_name} - {self.specialization}"
 
+class PatientRecord(models.Model):
+    patient = models.ForeignKey('Patient', on_delete=models.CASCADE, related_name="records")
+    doctor = models.ForeignKey(Doctor, on_delete=models.CASCADE, related_name="patients")
+    notes = models.TextField()
+    prescription = models.TextField(blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
 
+    def __str__(self):
+        return f"Record for {self.patient.user.first_name} by {self.doctor.user.last_name}"
+    
 class Appointment(models.Model):
     patient = models.ForeignKey(Patient, on_delete=models.CASCADE, related_name="appointments")
     doctor = models.ForeignKey(Doctor, on_delete=models.CASCADE, related_name="appointments")
@@ -59,7 +59,7 @@ class Appointment(models.Model):
     time = models.TimeField(null=True, blank=True)
     status = models.CharField(
         max_length=20,
-        choices=[('Pending', 'Pending'), ('Confirmed', 'Confirmed')],
+        choices=[('Pending', 'Pending'), ('Approved', 'Approved')],
         default='Pending'
     )
     notes = models.TextField(blank=True, null=True)  # Optional field for additional details
