@@ -68,12 +68,12 @@ def loginuser(request):
     return render(request, 'login.html', {'form': form})
 
 
-@login_required
 def doctor_dashboard(request):
-    doctor = get_object_or_404(Doctor, user=request.user)
-    appointments = Appointment.objects.filter(doctor=doctor).order_by('date', 'time')
-    pending_appointments = appointments.filter(status='Pending')
-    return render(request, 'doctor_dashboard.html', {
+    if request.user.is_authenticated and request.user.role == 'doctor':
+        doctor = get_object_or_404(Doctor, user=request.user)
+        appointments = Appointment.objects.filter(doctor=doctor).order_by('date', 'time')
+        pending_appointments = appointments.filter(status='Pending')
+        return render(request, 'doctor_dashboard.html', {
         'doctor': doctor,
         'appointments': appointments,
         'pending_appointments': pending_appointments,
