@@ -1,6 +1,8 @@
 from django.db import models
 from django.conf import settings
 from django.contrib.auth.models import AbstractUser
+from django import forms
+from django.apps import AppConfig
 
 class CustomUser(AbstractUser):
     ROLE_CHOICES = [
@@ -21,22 +23,35 @@ class CustomUser(AbstractUser):
     def __str__(self):
         return f"{self.first_name} {self.last_name} ({self.role})"
 
+class YourAppNameConfig(AppConfig):
+    default_auto_field = 'django.db.models.BigAutoField'
+    name = 'app'
+
+    def ready(self):
+        import app.signals;
+
 class PatientModel(models.Model):
     user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    symptoms = models.TextField(blank=True, null=True) 
+    symptoms = models.CharField(max_length=100, choices=[
+        ('eyes', 'Eye pain or discomfort'),
+        ('headache', 'Persistent or severe headaches'),
+        ('injury', 'Joint or muscle pain'),
+    ])
 
     def __str__(self):
         return f"Patient: {self.user.first_name} {self.user.last_name}"
 
 class DoctorModel(models.Model):
-    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True, blank=True)
+    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True, blank=True,related_name='doctor_profile')
     specialization = models.CharField(max_length=100, choices=[
         ('eyes', 'Eyes Specialist'),
         ('headache', 'Headache Specialist'),
         ('injury', 'Injury Specialist'),
     ])
-    available = models.BooleanField(default=True)
-    location = models.CharField(max_length=50)
+    bio = models.TextField(blank=True, null=True)
+    contact_number = models.CharField(max_length=15, blank=True, null=True)
+    available = models.BooleanField(default=True)  # Operational field
+    location = models.CharField(max_length=50, blank=True, null=True)
     working_hours = models.CharField(max_length=100, blank=True, null=True) 
 
     def __str__(self):
@@ -90,3 +105,5 @@ class MedicineRecommendation(models.Model):
     dosage = models.CharField(max_length=255)
     duration = models.CharField(max_length=255)
     recommended_at = models.DateTimeField(auto_now_add=True)
+
+

@@ -5,9 +5,25 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Patient Dashboard</title>
     <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        /* Sticky navbar styling */
+        .navbar {
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+        .dashboard-content {
+            margin-top: 20px;
+        }
+        .table-scrollable {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+    </style>
 </head>
-<body class="bg-light d-flex justify-content-center align-items-center vh-100">
-    <div class="container mt-5">
+<body class="bg-light">
+    {% include 'navbar.html' %}
+    <div class="container mt-5 d-flex flex-column justify-content-center align-items-center vh-100">
         <h2 class="mb-4">Dashboard</h2>
         <h4>Upcoming Appointments</h4>
         <table class="table table-striped">

@@ -3,7 +3,7 @@ from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import authenticate, get_user_model
 from django.contrib.auth.backends import ModelBackend
 from django.utils.translation import gettext_lazy as _
-from .models import CustomUser, Appointment
+from .models import CustomUser, Appointment, DoctorModel
 
 # Get the User model
 User = get_user_model()
@@ -118,3 +118,41 @@ class AppointmentForm(forms.ModelForm):
     class Meta:
         model = Appointment
         fields = ['doctor', 'date']
+
+class AppointmentRequestForm(forms.Form):
+    notes = forms.CharField(
+        widget=forms.Textarea(attrs={'placeholder': 'Describe your symptoms...'}),
+        required=True
+    )
+
+class DoctorSearchForm(forms.Form):
+    specialization = forms.ChoiceField(choices=[
+        ('', 'Select specialization'),
+        ('eyes', 'Eyes Specialist'),
+        ('headache', 'Headache Specialist'),
+        ('injury', 'Injury Specialist'),
+    ])
+
+class PatientSearchForm(forms.Form):
+    SYMPTOM_CHOICES = [
+        ('', 'Select Symptom'),
+        ('eyes', 'Eye pain or discomfort'),
+        ('headache', 'Persistent or severe headaches'),
+        ('injury', 'Joint or muscle pain'),
+    ]
+    symptom = forms.ChoiceField(
+        choices=SYMPTOM_CHOICES,
+        required=True,
+        label='Search by Symptom',
+        widget=forms.Select(attrs={'class': 'form-select'})
+    )
+
+class DoctorProfileUpdateForm(forms.ModelForm):
+    class Meta:
+        model = DoctorModel
+        fields = ['specialization', 'bio', 'contact_number', 'available', 'location', 'working_hours']
+        widgets = {
+            'bio': forms.Textarea(attrs={'rows': 4, 'placeholder': 'Describe yourself'}),
+            'contact_number': forms.TextInput(attrs={'placeholder': 'Enter contact number'}),
+            'working_hours': forms.TextInput(attrs={'placeholder': 'e.g., Mon-Fri, 9AM-5PM'}),
+        }

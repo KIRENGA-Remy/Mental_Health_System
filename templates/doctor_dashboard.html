@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Doctor Dashboard</title>
+    {% load static%}
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css">
     <style>
         /* Sticky navbar styling */
@@ -22,33 +23,7 @@
     </style>
 </head>
 <body class="bg-light">
-
-    <!-- Navbar -->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
-        <div class="container-fluid">
-            <a class="navbar-brand" href="#">
-                <img src="/static/logo.png" alt="Hospital Logo" width="30" height="30" class="d-inline-block align-text-top">
-                HealthCare System
-            </a>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav mx-auto">
-                    <li class="nav-item">
-                        <a class="nav-link active" href="#">Dashboard</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#">Appointments</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#">Patients</a>
-                    </li>
-                </ul>
-            </div>
-            <div class="d-flex align-items-center">
-                <img src="/static/doctor-avatar.jpg" alt="Doctor" class="rounded-circle" width="40" height="40">
-                <a href="/logout" class="btn btn-light ms-3">Logout</a>
-            </div>
-        </div>
-    </nav>
+    {% include 'navbar.html' %}
 
     <!-- Dashboard Content -->
     <div class="container dashboard-content">
@@ -93,6 +68,7 @@
                             <tr>
                                 <th>Patient</th>
                                 <th>Date</th>
+                                <th>Notes</th>
                                 <th>Actions</th>
                             </tr>
                         </thead>
@@ -101,6 +77,7 @@
                             <tr>
                                 <td>{{ appointment.patient.user.first_name }} {{ appointment.patient.user.last_name }}</td>
                                 <td>{{ appointment.date }}</td>
+                                <td class="card-text">{{ appointment.notes }}</td>
                                 <td>
                                     <a href="{% url 'approve_appointment' appointment.id %}" class="btn btn-success btn-sm">Approve</a>
                                     <a href="{% url 'reject_appointment' appointment.id %}" class="btn btn-danger btn-sm">Reject</a>

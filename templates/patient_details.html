@@ -3,13 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Home Page</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" integrity="sha384-9ndCyUa1tnA8msXn5KqnW6N6YbBzF1Jn+G+ZP9i6e1Zl9gvr8o24GH97ylxu0HS+" crossorigin="anonymous">
+    <title>Patient Details</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css">
 </head>
 <body class="bg-light d-flex justify-content-center align-items-center vh-100">
-   <!-- templates/patient_details.html -->
-{% extends "base.html" %}
-{% block content %}
+    {% include 'navbar.html' %}
 <div class="container mt-5">
     <h3>Create Your Profile</h3>
     <form method="post" action="{% url 'patient_details' %}" class="mt-4">
@@ -48,9 +46,8 @@
         <button type="submit" class="btn btn-primary">Save Profile</button>
     </form>
 </div>
-{% endblock %}
-
-
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-HoAJA4zPtBkw4ZMcQsK7h4ezSlgSpG6dfl+IIVrCrr/HdsVx+vAB71J1d29O1w6l" crossorigin="anonymous"></script>
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.0.7/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 </body>
 </html> 

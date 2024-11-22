@@ -7,14 +7,13 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css">
 </head>
 <body class="bg-light d-flex justify-content-center align-items-center vh-100">
-{% extends "base.html" %}
-{% block content %}
-<div class="container text-center mt-5">
-    <h4 class="text-success">Appointment Requested</h4>
-    <p>Your request for an appointment with Dr. {{ doctor.name }} has been sent. You will receive a confirmation once approved.</p>
-    <a href="{% url 'patient_dashboard' %}" class="text-primary font-weight-bold">Return Home</a>
-</div>
-{% endblock %}
+  {% include 'navbar.html' %}
+    <h2>Request Appointment with Dr. {{ doctor.user.first_name }} {{ doctor.user.last_name }}</h2>
+    <form method="post">
+      {% csrf_token %}
+      {{ form.as_p }}
+      <button type="submit" class="btn btn-primary">Submit Request</button>
+    </form>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Doctor Search Results</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css">
+</head>
+<body class="bg-light">
+    
+    {% include 'navbar.html' %}
+    
+    <div class="container mt-5">
+        <div class="row justify-content-center">
+            <div class="col-md-6 col-sm-8 col-10">
+                <h2 class="text-center mb-4">Available Doctors</h2>
+                
+                {% if doctors %}
+                    {% for doctor in doctors %}
+                        <div class="card mb-3 p-3 shadow-sm">
+                            <h4>Dr. {{ doctor.user.first_name }} {{ doctor.user.last_name }}</h4>
+                            <p>Specialization: {{ doctor.specialization }}</p>
+                            <a href="{% url 'request_appointment' doctor.id %}" class="btn btn-success">Request Appointment</a>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="alert alert-warning text-center">
+                        No doctors available for this specialization.
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.0.7/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>

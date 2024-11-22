@@ -2,9 +2,15 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import  login as auth_login, get_user_model
 from django.contrib.auth.decorators import login_required
 from django.utils import timezone
-from .forms import CustomUserCreationForm, CustomAuthenticationForm, AppointmentForm
+from .forms import CustomUserCreationForm, CustomAuthenticationForm, PatientSearchForm
+from .forms import AppointmentForm, AppointmentRequestForm, DoctorSearchForm, DoctorProfileUpdateForm
 from django.contrib import messages
 from .models import CustomUser, Appointment, HealthRecord, PatientRecord, DoctorModel, PatientModel, MedicineRecommendation, Advice
+from django.db.models.signals import post_save
+from django.contrib.auth.models import User
+from django.dispatch import receiver
+from .models import DoctorModel
+
 
 def registeruser(request):
     if request.method == 'POST':
@@ -187,9 +193,17 @@ def patient_dashboard(request):
         })
     return redirect('login')
 
-def search_doctors(request):
-    doctors = DoctorModel.objects.all()
-    return render(request, 'search_doctors.html', {'doctors': doctors})
+@login_required
+def search_doctor(request):
+    if request.method == 'POST':
+        form = DoctorSearchForm(request.POST)
+        if form.is_valid():
+            specialization = form.cleaned_data['specialization']
+            doctors = DoctorModel.objects.filter(specialization=specialization)
+            return render(request, 'search_results.html', {'doctors': doctors, 'form': form})
+    else:
+        form = DoctorSearchForm()
+    return render(request, 'search_doctor.html', {'form': form})
 
 
 def book_appointment(request, doctor_id):
@@ -214,15 +228,19 @@ def doctor_detail(request, doctor_id):
 @login_required
 def request_appointment(request, doctor_id):
     doctor = get_object_or_404(DoctorModel, id=doctor_id)
+    if request.method == 'POST':
+        form = AppointmentRequestForm(request.POST)
+        if form.is_valid():
+            Appointment.objects.create(
+                patient=request.user,  
+                doctor=doctor,
+                notes=form.cleaned_data['notes']
+            )
+            return redirect('dashboard')  
+    else:
+        form = AppointmentRequestForm()
+    return render(request, 'request_appointment.html', {'form': form, 'doctor': doctor})
 
-    appointment = Appointment.objects.create(
-        patient=request.user,
-        doctor=doctor,
-        status='pending'  
-    )
-
-    messages.success(request, f"Your request for an appointment with Dr. {doctor.name} has been sent.")
-    return render(request, 'request_appointment.html', {'doctor': doctor})
 
 @login_required
 def approved_appointments(request):
@@ -278,3 +296,46 @@ def recommended_medicine(request, patient_id):
         messages.success(request, f"Medicine recommended successfully.")
         return redirect('doctor_dashboard')
     return render(request, 'recommend_medicine.html', {'patient':patient})
+
+@login_required
+def update_doctor_profile(request):
+    doctor_profile = request.user.doctormodel  # Assuming `DoctorModel` is linked via OneToOneField
+    
+    if request.method == 'POST':
+        form = DoctorProfileUpdateForm(request.POST, instance=doctor_profile)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Your profile has been updated successfully!')
+            return redirect('doctor_dashboard')  # Redirect to the dashboard or profile page
+    else:
+        form = DoctorProfileUpdateForm(instance=doctor_profile)
+    
+    return render(request, 'update_doctor_profile.html', {'form': form})
+
+@receiver(post_save, sender=CustomUser)
+def create_doctor_profile(sender, instance, created, **kwargs):
+    if created and instance.is_doctor:  
+        DoctorModel.objects.create(user=instance)
+
+@receiver(post_save, sender=CustomUser)
+def save_doctor_profile(sender, instance, **kwargs):
+    if hasattr(instance, 'doctor_profile'):
+        instance.doctor_profile.save()
+
+def some_view(request):
+    context = {
+        'user_role': request.user.role  
+    }
+    return render(request, 'navbar.html', context)
+
+@login_required
+def search_patient(request):
+    if request.method == 'POST':
+        form = PatientSearchForm(request.POST)
+        if form.is_valid():
+            symptom = form.cleaned_data['symptom']
+            patients = PatientModel.objects.filter(symptom=symptom)
+            return render(request, 'search_pat_results.html', {'patients': patients, 'form': form})
+    else:
+        form = PatientSearchForm()
+    return render(request, 'search_patient.html', {'form': form})

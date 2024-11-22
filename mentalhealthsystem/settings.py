@@ -95,7 +95,7 @@ WSGI_APPLICATION = 'mentalhealthsystem.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'mentalhealthsystemthree',
+        'NAME': 'mental_health_system',
         "USER": "postgres",
         "PASSWORD": "remy2020",
         "HOST": "localhost",  
@@ -139,7 +139,9 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
 # STATIC_ROOT = BASE_DIR / 'productionfiles'
 STATIC_URL = '/static/'
-STATICFILES_DIRS = [BASE_DIR ]
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, "static"),  
+]
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
@@ -152,3 +154,6 @@ AUTHENTICATION_BACKENDS = [
     'app.authentication_backends.EmailBackend',  
     'django.contrib.auth.backends.ModelBackend'
 ]
+
+LOGIN_URL = '/login/' 
+LOGOUT_REDIRECT_URL = '/login/'
