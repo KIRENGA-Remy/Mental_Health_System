@@ -4,7 +4,7 @@ from django.contrib.auth.decorators import login_required
 from django.utils import timezone
 from .forms import CustomUserCreationForm, CustomAuthenticationForm, AppointmentForm
 from django.contrib import messages
-from .models import CustomUser, Appointment, HealthRecord, PatientRecord, DoctorModel, PatientModel
+from .models import CustomUser, Appointment, HealthRecord, PatientRecord, DoctorModel, PatientModel, MedicineRecommendation, Advice
 
 def registeruser(request):
     if request.method == 'POST':
@@ -237,3 +237,44 @@ login_required
 def doctor_list(request):
     doctors = DoctorModel.objects.all()  
     return render(request, 'doctor_list.html', {'doctors': doctors})
+
+
+def approve_appointment(request, appointment_id):
+    appointment = get_object_or_404(Appointment, id=appointment_id)
+    appointment.status = 'Approved'
+    appointment.save()
+    messages.success(request, f"Appointment with {appointment.patient.user.first_name} approved successfully.")
+    return redirect('doctor_dashboard')
+
+def reject_appointment(request, appointment_id):
+    appointment = get_object_or_404(Appointment, id=appointment_id)
+    appointment.status = 'Rejected'
+    appointment.save()
+    messages.success(request, f"Appointment with {appointment.patient.user.first_name} was rejected")
+    return redirect('doctor_dashboard')
+
+def create_advice(request, patient_id):
+    patient = get_object_or_404(PatientModel, id=patient_id)
+    if request.method == 'POST':
+        advice_text = request.POST.get('advice')
+        Advice.objects.create(patient=patient, doctor=request.user.doctor, advice_text=advice_text)
+        messages.success(request, "Advice created successfully.")
+        return redirect('doctor_dashboard')
+    return render(request, 'create_advice.html', {'patient': patient})
+
+def recommended_medicine(request, patient_id):
+    patient = get_object_or_404(PatientModel, id=patient_id)
+    if request.method == 'POST':
+        medicine_name = request.POST.get('medicine_name')
+        dosage = request.POST.get('dosage')
+        duration = request.POST.get('duration')
+        MedicineRecommendation.objects.create(
+            patient=patient,
+            doctor=request.user.doctor,
+            medicine_name=medicine_name,
+            dosage=dosage,
+            duration=duration
+        )
+        messages.success(request, f"Medicine recommended successfully.")
+        return redirect('doctor_dashboard')
+    return render(request, 'recommend_medicine.html', {'patient':patient})

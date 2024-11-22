@@ -43,7 +43,7 @@ class DoctorModel(models.Model):
         return f"Dr. {self.user.first_name} {self.user.last_name} - {self.specialization}"
 
 class PatientRecord(models.Model):
-    patient = models.ForeignKey('Patient', on_delete=models.CASCADE, related_name="records")
+    patient = models.ForeignKey(PatientModel, on_delete=models.CASCADE, related_name="records")
     doctor = models.ForeignKey(DoctorModel, on_delete=models.CASCADE, related_name="patients")
     notes = models.TextField()
     prescription = models.TextField(blank=True, null=True)
@@ -59,7 +59,7 @@ class Appointment(models.Model):
     time = models.TimeField(null=True, blank=True)
     status = models.CharField(
         max_length=20,
-        choices=[('Pending', 'Pending'), ('Approved', 'Approved')],
+        choices=[('Pending', 'Pending'), ('Approved', 'Approved'), ('Rejected', 'Rejected')],
         default='Pending'
     )
     notes = models.TextField(blank=True, null=True)  # Optional field for additional details
@@ -76,3 +76,17 @@ class HealthRecord(models.Model):
 
     def __str__(self):
         return f"Health Record for {self.patient.user.first_name} {self.patient.user.last_name} by Dr. {self.doctor.user.last_name}"
+
+class Advice(models.Model):
+    patient = models.ForeignKey(PatientModel, on_delete=models.CASCADE)
+    doctor = models.ForeignKey(DoctorModel, on_delete=models.CASCADE)
+    advice_text = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+class MedicineRecommendation(models.Model):
+    patient = models.ForeignKey(PatientModel, on_delete=models.CASCADE)
+    doctor = models.ForeignKey(DoctorModel, on_delete=models.CASCADE)
+    medicine_name = models.CharField(max_length=255)
+    dosage = models.CharField(max_length=255)
+    duration = models.CharField(max_length=255)
+    recommended_at = models.DateTimeField(auto_now_add=True)

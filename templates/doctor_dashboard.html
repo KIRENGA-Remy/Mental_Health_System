@@ -5,35 +5,145 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Doctor Dashboard</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css">
+    <style>
+        /* Sticky navbar styling */
+        .navbar {
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+        .dashboard-content {
+            margin-top: 20px;
+        }
+        .table-scrollable {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+    </style>
 </head>
 <body class="bg-light">
-    <div class="container">
-        <h2 class="mt-4">Welcome, Dr. {{ doctor.user.first_name }}</h2>
-        <div class="row">
-            <div class="col-md-6">
-                <h4>Your Appointments</h4>
-                <ul class="list-group">
-                    {% for appointment in appointments %}
-                        <li class="list-group-item">
-                            {{ appointment.patient.user.first_name }} on {{ appointment.date }} at {{ appointment.time }}
-                            <span class="badge bg-{{ appointment.status|lower }}">{{ appointment.status }}</span>
-                        </li>
-                    {% endfor %}
+
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">
+                <img src="/static/logo.png" alt="Hospital Logo" width="30" height="30" class="d-inline-block align-text-top">
+                HealthCare System
+            </a>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav mx-auto">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="#">Dashboard</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">Appointments</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">Patients</a>
+                    </li>
                 </ul>
             </div>
+            <div class="d-flex align-items-center">
+                <img src="/static/doctor-avatar.jpg" alt="Doctor" class="rounded-circle" width="40" height="40">
+                <a href="/logout" class="btn btn-light ms-3">Logout</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Dashboard Content -->
+    <div class="container dashboard-content">
+        <h2 class="mt-4">Welcome, Dr. {{ doctor.user.first_name }}</h2>
+
+        <!-- Appointments Section -->
+        <div class="row mt-4">
+            <div class="col-md-6">
+                <h4>Your Appointments</h4>
+                <div class="table-responsive table-scrollable">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Patient</th>
+                                <th>Date</th>
+                                <th>Time</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for appointment in appointments %}
+                            <tr>
+                                <td>{{ appointment.patient.user.first_name }} {{ appointment.patient.user.last_name }}</td>
+                                <td>{{ appointment.date }}</td>
+                                <td>{{ appointment.time }}</td>
+                                <td>
+                                    <span class="badge bg-{{ appointment.status|lower }}">{{ appointment.status }}</span>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Pending Requests Section -->
             <div class="col-md-6">
                 <h4>Pending Requests</h4>
-                <ul class="list-group">
-                    {% for appointment in pending_appointments %}
-                        <li class="list-group-item">
-                            {{ appointment.patient.user.first_name }} on {{ appointment.date }}
-                            <a href="#" class="btn btn-sm btn-success">Approve</a>
-                            <a href="#" class="btn btn-sm btn-danger">Reject</a>
-                        </li>
-                    {% endfor %}
-                </ul>
+                <div class="table-responsive table-scrollable">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Patient</th>
+                                <th>Date</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for appointment in pending_appointments %}
+                            <tr>
+                                <td>{{ appointment.patient.user.first_name }} {{ appointment.patient.user.last_name }}</td>
+                                <td>{{ appointment.date }}</td>
+                                <td>
+                                    <a href="{% url 'approve_appointment' appointment.id %}" class="btn btn-success btn-sm">Approve</a>
+                                    <a href="{% url 'reject_appointment' appointment.id %}" class="btn btn-danger btn-sm">Reject</a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Patients Section -->
+        <div class="row mt-4">
+            <div class="col-md-12">
+                <h4>All Patients</h4>
+                <div class="table-responsive table-scrollable">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Patient Name</th>
+                                <th>Symptoms</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for patient in patients %}
+                            <tr>
+                                <td>{{ patient.user.first_name }} {{ patient.user.last_name }}</td>
+                                <td>{{ patient.symptoms }}</td>
+                                <td>
+                                    <a href="{% url 'create_advice' patient.id %}" class="btn btn-primary btn-sm">Create Advice</a>
+                                    <a href="{% url 'recommend_medicine' patient.id %}" class="btn btn-secondary btn-sm">Recommend Medicine</a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
