@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import  login as auth_login, get_user_model
 from django.contrib.auth.decorators import login_required
 from django.utils import timezone
-from .forms import CustomUserCreationForm, CustomAuthenticationForm, PatientSearchForm
+from .forms import CustomUserCreationForm, CustomAuthenticationForm, PatientSearchForm, PatientProfileUpdateForm
 from .forms import AppointmentForm, AppointmentRequestForm, DoctorSearchForm, DoctorProfileUpdateForm
 from django.contrib import messages
 from .models import CustomUser, Appointment, HealthRecord, PatientRecord, DoctorModel, PatientModel, MedicineRecommendation, Advice
@@ -321,6 +321,31 @@ def create_doctor_profile(sender, instance, created, **kwargs):
 def save_doctor_profile(sender, instance, **kwargs):
     if hasattr(instance, 'doctor_profile'):
         instance.doctor_profile.save()
+    
+@login_required
+def update_patient_profile(request):
+    patient_profile = request.user.patientmodel 
+    
+    if request.method == 'POST':
+        form = PatientProfileUpdateForm(request.POST, instance=patient_profile)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Your profile has been updated successfully!')
+            return redirect('patient_dashboard')  
+    else:
+        form = PatientProfileUpdateForm(instance=patient_profile)
+    
+    return render(request, 'update_patient_profile.html', {'form': form})
+
+@receiver(post_save, sender=CustomUser)
+def create_patient_profile(sender, instance, created, **kwargs):
+    if created and instance.is_patient:  
+        PatientModel.objects.create(user=instance)
+
+@receiver(post_save, sender=CustomUser)
+def save_patient_profile(sender, instance, **kwargs):
+    if hasattr(instance, 'patient_profile'):
+        instance.patient_profile.save()
 
 def some_view(request):
     context = {

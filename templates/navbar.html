@@ -49,7 +49,19 @@
             </ul>
         </div>
         <div class="d-flex align-items-center">
-            <img src="/static/images/auser.png" alt="Doctor" class="rounded-circle" width="40" height="40">
+        {% if user_role == 'patient'%}
+        <a href="{% url 'update_patient_profile' %}" >
+        <img src="/static/images/patient.png" alt="Patient" class="rounded-circle" width="40" height="40">
+        </a>
+        {% elif user_role == 'doctor' %}
+        <a href="{% url 'update_doctor_profile' %}" >
+        <img src="/static/images/doctor.png" alt="Doctor" class="rounded-circle" width="40" height="40"> 
+        </a>
+        {% else %}
+        <a href="{% url 'update_doctor_profile' %}" >
+        <img src="/static/images/auser.png" alt="User" class="rounded-circle" width="40" height="40">
+        </a>
+        {% endif %}
             <a href="{% url 'login' %}" class="btn btn-light ms-3">Logout</a>
         </div>
     </div>

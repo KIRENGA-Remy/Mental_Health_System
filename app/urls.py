@@ -30,5 +30,6 @@ urlpatterns = [
     path('search_doctor/', views.search_doctor, name='search_doctor'),
     path('search_patient/', views.search_patient, name='search_patient'),
     path('request-appointment/<int:doctor_id>/', views.request_appointment, name='request_appointment'),
-    path('update-profile/', views.update_doctor_profile, name='update_doctor_profile'),
+    path('update_doctor_profile', views.update_doctor_profile, name='update_doctor_profile'),
+    path('update_patient_profile', views.update_patient_profile, name='update_patient_profile'),
 ]

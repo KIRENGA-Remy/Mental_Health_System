@@ -37,6 +37,18 @@ class PatientModel(models.Model):
         ('headache', 'Persistent or severe headaches'),
         ('injury', 'Joint or muscle pain'),
     ])
+    age = models.IntegerField(null=True, blank=True)
+    gender = models.CharField(max_length=10, choices=[
+        ('male', 'Male'),
+        ('female', 'Female'),
+        ('other', 'Other'),
+    ])
+    insurance = models.CharField(max_length=20, choices=[
+        ('rama', 'RAMA'),
+        ('mmi', 'MMI'),
+        ('mituelle', 'Mituelle'),
+        ('none', 'None'),
+    ])
 
     def __str__(self):
         return f"Patient: {self.user.first_name} {self.user.last_name}"

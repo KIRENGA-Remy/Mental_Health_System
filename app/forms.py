@@ -3,7 +3,7 @@ from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import authenticate, get_user_model
 from django.contrib.auth.backends import ModelBackend
 from django.utils.translation import gettext_lazy as _
-from .models import CustomUser, Appointment, DoctorModel
+from .models import CustomUser, Appointment, DoctorModel, PatientModel
 
 # Get the User model
 User = get_user_model()
@@ -155,4 +155,16 @@ class DoctorProfileUpdateForm(forms.ModelForm):
             'bio': forms.Textarea(attrs={'rows': 4, 'placeholder': 'Describe yourself'}),
             'contact_number': forms.TextInput(attrs={'placeholder': 'Enter contact number'}),
             'working_hours': forms.TextInput(attrs={'placeholder': 'e.g., Mon-Fri, 9AM-5PM'}),
+        }
+
+class PatientProfileUpdateForm(forms.ModelForm):
+    class Meta:
+        model = PatientModel
+        fields = ['age', 'gender', 'symptoms', 'insurance']
+        
+        widgets = {
+            'age': forms.NumberInput(attrs={'placeholder': 'Enter your age'}),
+            'gender': forms.Select(attrs={'class': 'form-select'}),
+            'symptoms': forms.Select(attrs={'class': 'form-select'}),
+            'insurance': forms.Select(attrs={'class': 'form-select'}),
         }
