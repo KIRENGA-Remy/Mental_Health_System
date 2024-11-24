@@ -13,7 +13,17 @@ class CustomUser(AbstractUser):
     username = None  
     email = models.EmailField(unique=True)  
     role = models.CharField(max_length=10, choices=ROLE_CHOICES, default='patient')
+
+    @property
+    def is_doctor(self):
+        return self.role == 'doctor'
+
+    @property
+    def is_patient(self):
+        return self.role == 'patient'
     
+    is_doctor = models.BooleanField(default=False)
+    is_patient = models.BooleanField(default=False)
     first_name = models.CharField(max_length=100, blank=False, null=False)
     last_name = models.CharField(max_length=100, blank=False, null=False)
     
@@ -36,19 +46,19 @@ class PatientModel(models.Model):
         ('eyes', 'Eye pain or discomfort'),
         ('headache', 'Persistent or severe headaches'),
         ('injury', 'Joint or muscle pain'),
-    ])
+    ], default="Not Known")
     age = models.IntegerField(null=True, blank=True)
     gender = models.CharField(max_length=10, choices=[
         ('male', 'Male'),
         ('female', 'Female'),
         ('other', 'Other'),
-    ])
+    ], default="Other")
     insurance = models.CharField(max_length=20, choices=[
         ('rama', 'RAMA'),
         ('mmi', 'MMI'),
         ('mituelle', 'Mituelle'),
         ('none', 'None'),
-    ])
+    ], default="None")
 
     def __str__(self):
         return f"Patient: {self.user.first_name} {self.user.last_name}"
@@ -117,5 +127,3 @@ class MedicineRecommendation(models.Model):
     dosage = models.CharField(max_length=255)
     duration = models.CharField(max_length=255)
     recommended_at = models.DateTimeField(auto_now_add=True)
-
-

@@ -319,8 +319,8 @@ def create_doctor_profile(sender, instance, created, **kwargs):
 
 @receiver(post_save, sender=CustomUser)
 def save_doctor_profile(sender, instance, **kwargs):
-    if hasattr(instance, 'doctor_profile'):
-        instance.doctor_profile.save()
+    if hasattr(instance, 'doctormodel'):
+        instance.doctormodel.save()
     
 @login_required
 def update_patient_profile(request):
@@ -344,8 +344,8 @@ def create_patient_profile(sender, instance, created, **kwargs):
 
 @receiver(post_save, sender=CustomUser)
 def save_patient_profile(sender, instance, **kwargs):
-    if hasattr(instance, 'patient_profile'):
-        instance.patient_profile.save()
+    if hasattr(instance, 'patientmodel'):
+        instance.patientmodel.save()
 
 def some_view(request):
     context = {
