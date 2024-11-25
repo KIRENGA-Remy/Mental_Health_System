@@ -9,35 +9,37 @@ class CustomUser(AbstractUser):
         ('doctor', 'Doctor'),
         ('patient', 'Patient'),
     ]
-    username = None  
-    email = models.EmailField(unique=True)  
-    is_doctor = models.BooleanField(default=False)  
-    is_patient = models.BooleanField(default=False)
+    username = None  # Use email as the username
+    email = models.EmailField(unique=True)  # Make email unique
     role = models.CharField(max_length=10, choices=ROLE_CHOICES, default='patient')
 
-    first_name = models.CharField(max_length=100, blank=False, null=False)
-    last_name = models.CharField(max_length=100, blank=False, null=False)
-    is_doctor = models.BooleanField(default=False)
+    first_name = models.CharField(max_length=100)
+    last_name = models.CharField(max_length=100)
     
-    USERNAME_FIELD = 'email' 
-    REQUIRED_FIELDS = ['first_name', 'last_name', 'role']  
+    USERNAME_FIELD = 'email'  # Set the username field to email
+    REQUIRED_FIELDS = ['first_name', 'last_name', 'role']  # Make these fields mandatory for user creation
 
     def __str__(self):
         return f"{self.first_name} {self.last_name} ({self.role})"
 
-class YourAppNameConfig(AppConfig):
-    default_auto_field = 'django.db.models.BigAutoField'
-    name = 'app'
+class DoctorModel(models.Model):
+    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='doctor_profile')
+    specialization = models.CharField(max_length=100, choices=[
+        ('eyes', 'Eyes Specialist'),
+        ('headache', 'Headache Specialist'),
+        ('injury', 'Injury Specialist'),
+    ], default="Nurse")
+    bio = models.TextField(blank=True, null=True)
+    contact_number = models.CharField(max_length=15, blank=True, null=True)
+    available = models.BooleanField(default=True)
+    location = models.CharField(max_length=50, blank=True, null=True)
+    working_hours = models.CharField(max_length=100, blank=True, null=True)
 
-    def ready(self):
-        import app.signals;
+    def __str__(self):
+        return f"Dr. {self.user.first_name} {self.user.last_name} - {self.specialization}"
 
 class PatientModel(models.Model):
-    user = models.OneToOneField(
-        settings.AUTH_USER_MODEL,
-        on_delete=models.CASCADE,
-        related_name='patient_profile'
-    )
+    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='patient_profile')
     symptoms = models.CharField(max_length=100, choices=[
         ('eyes', 'Eye pain or discomfort'),
         ('headache', 'Persistent or severe headaches'),
@@ -59,25 +61,12 @@ class PatientModel(models.Model):
     def __str__(self):
         return f"Patient: {self.user.first_name} {self.user.last_name}"
 
-class DoctorModel(models.Model):
-    user = models.OneToOneField(
-        settings.AUTH_USER_MODEL,
-        on_delete=models.CASCADE,
-        related_name='doctor_profile'
-    )
-    specialization = models.CharField(max_length=100, choices=[
-        ('eyes', 'Eyes Specialist'),
-        ('headache', 'Headache Specialist'),
-        ('injury', 'Injury Specialist'),
-    ], default="Nurse")
-    bio = models.TextField(blank=True, null=True)
-    contact_number = models.CharField(max_length=15, blank=True, null=True)
-    available = models.BooleanField(default=True)
-    location = models.CharField(max_length=50, blank=True, null=True)
-    working_hours = models.CharField(max_length=100, blank=True, null=True)
+class YourAppNameConfig(AppConfig):
+    default_auto_field = 'django.db.models.BigAutoField'
+    name = 'app'
 
-    def __str__(self):
-        return f"Dr. {self.user.first_name} {self.user.last_name} - {self.specialization}"
+    def ready(self):
+        import app.signals;
 
 class PatientRecord(models.Model):
     patient = models.ForeignKey(PatientModel, on_delete=models.CASCADE, related_name="records")

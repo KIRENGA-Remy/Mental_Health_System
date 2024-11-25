@@ -28,7 +28,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='doctormodel',
             name='user',
-            field=models.OneToOneField(default='guest', on_delete=django.db.models.deletion.CASCADE, related_name='doctor_profile', to=settings.AUTH_USER_MODEL),
+            field=models.OneToOneField( on_delete=django.db.models.deletion.CASCADE, related_name='doctor_profile', to=settings.AUTH_USER_MODEL),
         ),
         migrations.AlterField(
             model_name='patientmodel',

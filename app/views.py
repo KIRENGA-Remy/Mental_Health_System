@@ -2,8 +2,8 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import  login as auth_login, get_user_model
 from django.contrib.auth.decorators import login_required
 from django.utils import timezone
-from .forms import CustomUserCreationForm, CustomAuthenticationForm, PatientSearchForm, PatientProfileUpdateForm
-from .forms import AppointmentForm, AppointmentRequestForm, DoctorSearchForm, DoctorProfileUpdateForm
+from .forms import CustomUserCreationForm, CustomAuthenticationForm, PatientSearchForm, PatientProfileUpdateForm,PatientModelForm
+from .forms import AppointmentForm, AppointmentRequestForm, DoctorSearchForm, DoctorProfileUpdateForm, DoctorModelForm
 from django.contrib import messages
 from .models import CustomUser, Appointment, HealthRecord, PatientRecord, DoctorModel, PatientModel, MedicineRecommendation, Advice
 from django.db.models.signals import post_save
@@ -18,39 +18,35 @@ def registeruser(request):
         if form.is_valid():
             email = form.cleaned_data.get('email')
             
-            # Check if email already exists
             if CustomUser.objects.filter(email=email).exists():
                 messages.error(request, "Account with this email already exists")
                 return render(request, 'register.html', {'form': form})
 
             # Save the user but don't commit to the database yet
             user = form.save(commit=False)
-            
-            # Set roles explicitly based on role selection
-            if user.role == 'doctor':
-                user.is_doctor = True
-                user.is_patient = False
-            elif user.role == 'patient':
-                user.is_doctor = False
-                user.is_patient = True
-            else:
-                # Handle unexpected roles gracefully
-                messages.error(request, "Invalid role selected")
-                return render(request, 'register.html', {'form': form})
+            role = user.role
+            if role == 'doctor':
+                doctor_form = DoctorModelForm(request.POST)
+                if doctor_form.is_valid():
+                    doctor_profile = doctor_form.save(commit=False)
+                    doctor_profile.user = user
+                    doctor_profile.save()
+            elif role == 'patient':
+                patient_form = PatientModelForm(request.POST)
+                if patient_form.is_valid():
+                    patient_profile = patient_form.save(commit=False)
+                    patient_profile.user = user
+                    patient_profile.save()
 
             # Save the user to the database
             user.save()
-
-            # Create corresponding doctor or patient profile
-            if user.is_doctor:
-                DoctorModel.objects.create(user=user)
-            else:  # user.is_patient is True
-                PatientModel.objects.create(user=user)
 
             messages.success(request, "Account created successfully")
             return redirect('login')
     else:
         form = CustomUserCreationForm()
+        doctor_form = DoctorModelForm()
+        patient_form = PatientModelForm()
     
     return render(request, 'register.html', {'form': form})
 

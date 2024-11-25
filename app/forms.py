@@ -1,43 +1,37 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
-from django.contrib.auth import authenticate, get_user_model
+from django.contrib.auth import authenticate
 from django.contrib.auth.backends import ModelBackend
 from django.utils.translation import gettext_lazy as _
 from .models import CustomUser, Appointment, DoctorModel, PatientModel
 
-# Get the User model
-User = get_user_model()
-
-# Custom User Creation Form
 class CustomUserCreationForm(UserCreationForm):
-    first_name = forms.CharField(
-        max_length=30, required=True, help_text="Enter your first name"
-    )
-    last_name = forms.CharField(
-        max_length=30, required=True, help_text="Enter your last name"
-    )
-    email = forms.EmailField(
-        required=True, help_text="Enter your email"
-    )
-    role = forms.ChoiceField(
-        choices=CustomUser.ROLE_CHOICES, required=True
-    )
+    first_name = forms.CharField(max_length=30, required=True)
+    last_name = forms.CharField(max_length=30, required=True)
+    email = forms.EmailField(required=True)
+    role = forms.ChoiceField(choices=CustomUser.ROLE_CHOICES, required=True)
 
     class Meta:
         model = CustomUser
         fields = ['first_name', 'last_name', 'email', 'password1', 'password2', 'role']
 
     def clean_email(self):
-        """
-        Ensure the email is unique.
-        """
         email = self.cleaned_data.get("email")
-        if User.objects.filter(email=email).exists():
-            raise forms.ValidationError(_("A user with this email already exists."))
+        if CustomUser.objects.filter(email=email).exists():
+            raise forms.ValidationError("A user with this email already exists.")
         return email
 
 
-# Custom Authentication Form
+class DoctorModelForm(forms.ModelForm):
+    class Meta:
+        model = DoctorModel
+        fields = ['specialization', 'bio', 'contact_number', 'available', 'location', 'working_hours']
+
+class PatientModelForm(forms.ModelForm):
+    class Meta:
+        model = PatientModel
+        fields = ['symptoms', 'age', 'gender', 'insurance']
+
 class CustomAuthenticationForm(forms.Form):
     error_messages = {
         "invalid_login": _("Please enter a correct email and password."),
@@ -105,10 +99,9 @@ class EmailBackend(ModelBackend):
         """
         Authenticate user with email and password.
         """
-        UserModel = get_user_model()  
         try:
-            user = UserModel.objects.get(email=username)
-        except UserModel.DoesNotExist:
+            user = CustomUser.objects.get(email=username)
+        except CustomUser.DoesNotExist:
             return None
         if user.check_password(password) and self.user_can_authenticate(user):
             return user
@@ -169,3 +162,4 @@ class PatientProfileUpdateForm(forms.ModelForm):
             'symptoms': forms.Select(attrs={'class': 'form-select'}),
             'insurance': forms.Select(attrs={'class': 'form-select'}),
         }
+
