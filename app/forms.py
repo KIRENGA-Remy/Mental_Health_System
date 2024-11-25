@@ -155,6 +155,7 @@ class DoctorProfileUpdateForm(forms.ModelForm):
             'bio': forms.Textarea(attrs={'rows': 4, 'placeholder': 'Describe yourself'}),
             'contact_number': forms.TextInput(attrs={'placeholder': 'Enter contact number'}),
             'working_hours': forms.TextInput(attrs={'placeholder': 'e.g., Mon-Fri, 9AM-5PM'}),
+            'specialization': forms.Select(attrs={'class': 'form-select'})
         }
 
 class PatientProfileUpdateForm(forms.ModelForm):

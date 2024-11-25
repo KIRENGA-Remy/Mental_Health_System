@@ -95,7 +95,7 @@ WSGI_APPLICATION = 'mentalhealthsystem.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'mentalhealthsystemtwo',
+        'NAME': 'mentalhealthsystemthree',
         "USER": "postgres",
         "PASSWORD": "remy2020",
         "HOST": "localhost",  

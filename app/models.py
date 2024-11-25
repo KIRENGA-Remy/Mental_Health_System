@@ -9,23 +9,13 @@ class CustomUser(AbstractUser):
         ('doctor', 'Doctor'),
         ('patient', 'Patient'),
     ]
-    
     username = None  
     email = models.EmailField(unique=True)  
     role = models.CharField(max_length=10, choices=ROLE_CHOICES, default='patient')
 
-    @property
-    def is_doctor(self):
-        return self.role == 'doctor'
-
-    @property
-    def is_patient(self):
-        return self.role == 'patient'
-    
-    is_doctor = models.BooleanField(default=False)
-    is_patient = models.BooleanField(default=False)
     first_name = models.CharField(max_length=100, blank=False, null=False)
     last_name = models.CharField(max_length=100, blank=False, null=False)
+    is_doctor = models.BooleanField(default=False)
     
     USERNAME_FIELD = 'email' 
     REQUIRED_FIELDS = ['first_name', 'last_name', 'role']  
@@ -41,7 +31,7 @@ class YourAppNameConfig(AppConfig):
         import app.signals;
 
 class PatientModel(models.Model):
-    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, default=1, related_name='patient_profile')
     symptoms = models.CharField(max_length=100, choices=[
         ('eyes', 'Eye pain or discomfort'),
         ('headache', 'Persistent or severe headaches'),
@@ -64,17 +54,17 @@ class PatientModel(models.Model):
         return f"Patient: {self.user.first_name} {self.user.last_name}"
 
 class DoctorModel(models.Model):
-    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True, blank=True,related_name='doctor_profile')
+    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=False, default=1, related_name='doctor_profile')
     specialization = models.CharField(max_length=100, choices=[
         ('eyes', 'Eyes Specialist'),
         ('headache', 'Headache Specialist'),
         ('injury', 'Injury Specialist'),
-    ])
+    ], default="Nurse")
     bio = models.TextField(blank=True, null=True)
     contact_number = models.CharField(max_length=15, blank=True, null=True)
-    available = models.BooleanField(default=True)  # Operational field
+    available = models.BooleanField(default=True)
     location = models.CharField(max_length=50, blank=True, null=True)
-    working_hours = models.CharField(max_length=100, blank=True, null=True) 
+    working_hours = models.CharField(max_length=100, blank=True, null=True)
 
     def __str__(self):
         return f"Dr. {self.user.first_name} {self.user.last_name} - {self.specialization}"

@@ -299,53 +299,48 @@ def recommended_medicine(request, patient_id):
 
 @login_required
 def update_doctor_profile(request):
-    doctor_profile = request.user.doctormodel  # Assuming `DoctorModel` is linked via OneToOneField
+    doctor_profile = request.user.doctor_profile  # Linked via OneToOneField
     
     if request.method == 'POST':
         form = DoctorProfileUpdateForm(request.POST, instance=doctor_profile)
         if form.is_valid():
             form.save()
             messages.success(request, 'Your profile has been updated successfully!')
-            return redirect('doctor_dashboard')  # Redirect to the dashboard or profile page
+            return redirect('doctor_dashboard')
     else:
         form = DoctorProfileUpdateForm(instance=doctor_profile)
     
     return render(request, 'update_doctor_profile.html', {'form': form})
 
 @receiver(post_save, sender=CustomUser)
-def create_doctor_profile(sender, instance, created, **kwargs):
-    if created and instance.is_doctor:  
-        DoctorModel.objects.create(user=instance)
+def create_user_profile(sender, instance, created, **kwargs):
+    if created:
+        if instance.role == 'doctor':
+            DoctorModel.objects.create(user=instance)
+        elif instance.role == 'patient':
+            PatientModel.objects.create(user=instance)
 
 @receiver(post_save, sender=CustomUser)
-def save_doctor_profile(sender, instance, **kwargs):
-    if hasattr(instance, 'doctormodel'):
-        instance.doctormodel.save()
+def save_user_profile(sender, instance, **kwargs):
+    if hasattr(instance, 'doctor_profile'):
+        instance.doctor_profile.save()
+    elif hasattr(instance, 'patient_profile'):
+        instance.patient_profile.save()
     
 @login_required
 def update_patient_profile(request):
-    patient_profile = request.user.patientmodel 
+    patient_profile = request.user.patient_profile
     
     if request.method == 'POST':
         form = PatientProfileUpdateForm(request.POST, instance=patient_profile)
         if form.is_valid():
             form.save()
             messages.success(request, 'Your profile has been updated successfully!')
-            return redirect('patient_dashboard')  
+            return redirect('patient_dashboard')
     else:
         form = PatientProfileUpdateForm(instance=patient_profile)
     
     return render(request, 'update_patient_profile.html', {'form': form})
-
-@receiver(post_save, sender=CustomUser)
-def create_patient_profile(sender, instance, created, **kwargs):
-    if created and instance.is_patient:  
-        PatientModel.objects.create(user=instance)
-
-@receiver(post_save, sender=CustomUser)
-def save_patient_profile(sender, instance, **kwargs):
-    if hasattr(instance, 'patientmodel'):
-        instance.patientmodel.save()
 
 def some_view(request):
     context = {
