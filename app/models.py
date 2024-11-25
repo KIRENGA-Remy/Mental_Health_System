@@ -11,6 +11,8 @@ class CustomUser(AbstractUser):
     ]
     username = None  
     email = models.EmailField(unique=True)  
+    is_doctor = models.BooleanField(default=False)  
+    is_patient = models.BooleanField(default=False)
     role = models.CharField(max_length=10, choices=ROLE_CHOICES, default='patient')
 
     first_name = models.CharField(max_length=100, blank=False, null=False)
@@ -31,7 +33,11 @@ class YourAppNameConfig(AppConfig):
         import app.signals;
 
 class PatientModel(models.Model):
-    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, default=1, related_name='patient_profile')
+    user = models.OneToOneField(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='patient_profile'
+    )
     symptoms = models.CharField(max_length=100, choices=[
         ('eyes', 'Eye pain or discomfort'),
         ('headache', 'Persistent or severe headaches'),
@@ -54,7 +60,11 @@ class PatientModel(models.Model):
         return f"Patient: {self.user.first_name} {self.user.last_name}"
 
 class DoctorModel(models.Model):
-    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=False, default=1, related_name='doctor_profile')
+    user = models.OneToOneField(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='doctor_profile'
+    )
     specialization = models.CharField(max_length=100, choices=[
         ('eyes', 'Eyes Specialist'),
         ('headache', 'Headache Specialist'),

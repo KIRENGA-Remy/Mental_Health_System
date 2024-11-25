@@ -17,24 +17,42 @@ def registeruser(request):
         form = CustomUserCreationForm(request.POST)
         if form.is_valid():
             email = form.cleaned_data.get('email')
-            if CustomUser.objects.filter(email=email):
-                messages.error(request, "Account with this email already exist")
-                return render(request, 'register.html', {'form':form})
             
+            # Check if email already exists
+            if CustomUser.objects.filter(email=email).exists():
+                messages.error(request, "Account with this email already exists")
+                return render(request, 'register.html', {'form': form})
+
+            # Save the user but don't commit to the database yet
             user = form.save(commit=False)
-            if user.role == 'patient':
-                user.save()
-                PatientModel.objects.create(user=user)
-            elif user.role == 'doctor':
-                user.save()
+            
+            # Set roles explicitly based on role selection
+            if user.role == 'doctor':
+                user.is_doctor = True
+                user.is_patient = False
+            elif user.role == 'patient':
+                user.is_doctor = False
+                user.is_patient = True
+            else:
+                # Handle unexpected roles gracefully
+                messages.error(request, "Invalid role selected")
+                return render(request, 'register.html', {'form': form})
+
+            # Save the user to the database
+            user.save()
+
+            # Create corresponding doctor or patient profile
+            if user.is_doctor:
                 DoctorModel.objects.create(user=user)
-        
-        messages.success(request, "Account created successfully")
-        return redirect('login')
+            else:  # user.is_patient is True
+                PatientModel.objects.create(user=user)
+
+            messages.success(request, "Account created successfully")
+            return redirect('login')
     else:
         form = CustomUserCreationForm()
     
-    return render(request, 'register.html', {'form':form})
+    return render(request, 'register.html', {'form': form})
 
 
 def alreadyexist(request):
